@@ -4,197 +4,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>テキスト分析ツール PRO | 文字数・読了時間・構成比を瞬時に解析</title>
-    <meta name="description" content="文章を貼り付けるだけで文字数・単語数・読了時間・漢字率・ひらがな率を瞬時に解析。ブロガー・ライター・SNS運用者のための無料テキスト分析ツール。">
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>文字数カウント君 - 便利ツール集</title>
     <!-- React & ReactDOM -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        primary: '#10b981',
-                        dark: '#0f172a',
-                        darker: '#020617',
-                        card: '#1e293b'
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         body {
-            background-color: #020617;
-            color: #f8fafc;
-            background-image:
-                radial-gradient(at 0% 0%, hsla(160, 40%, 10%, 1) 0, transparent 50%),
-                radial-gradient(at 50% 0%, hsla(180, 39%, 15%, 0.2) 0, transparent 50%),
-                radial-gradient(at 100% 0%, hsla(140, 49%, 15%, 0.2) 0, transparent 50%);
-            background-attachment: fixed;
+            background-color: #efefef;
+            color: #000000;
+            font-family: "MS PGothic", "MS Pゴシック", sans-serif;
+            margin: 20px;
         }
 
-        .glass {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .container {
+            width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border: 2px solid #000000;
+            padding: 15px;
         }
 
-        .gradient-text {
-            background: linear-gradient(to right, #34d399, #06b6d4);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
+        h1 {
+            color: #ffffff;
+            background-color: #008080;
+            padding: 5px;
+            font-size: 20px;
+            text-align: center;
+            margin: -15px -15px 15px -15px;
+            border-bottom: 2px solid #000000;
         }
 
-        .stat-card {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        table.main {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.15);
+        table.main td {
+            border: 1px solid #cccccc;
+            padding: 10px;
         }
 
-        textarea:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.5);
+        .label {
+            background-color: #eeeeee;
+            font-weight: bold;
+            width: 150px;
+            font-size: 14px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            border: 2px inset #ffffff;
+            background-color: #ffffff;
+            font-family: inherit;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        .stat-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .stat-box {
+            border: 1px solid #999999;
+            background-color: #f9f9f9;
+            padding: 5px 10px;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .stat-val {
+            font-size: 20px;
+            font-weight: bold;
+            color: #000080;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #666666;
+        }
+
+        .bar-container {
+            width: 100%;
+            height: 15px;
+            background-color: #dddddd;
+            border: 1px solid #999999;
+            margin-top: 5px;
         }
 
         .bar-fill {
-            transition: width 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            height: 100%;
+            background-color: #008080;
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            border-top: 1px dotted #999999;
+            padding-top: 10px;
+        }
+
+        a {
+            color: #0000ff;
         }
     </style>
-    <!-- Google Search Console 所有権確認用メタタグ -->
-    <meta name="google-site-verification" content="nDfNlMk2wvPV-koGT7Ur1MandTe503qb1CQ0kJw6fdA" />
-
-    <!-- Google AdSense 審査・所有権確認用コード -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5383957100145583"
-        crossorigin="anonymous"></script>
 </head>
 
-<body class="min-h-screen py-10 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-5xl mx-auto">
-        <div class="text-center mb-8">
-            <h1 class="text-4xl md:text-6xl font-extrabold mb-4 tracking-tight"><span class="gradient-text">Text
-                    Analyzer</span> PRO</h1>
-            <p class="text-slate-400 text-lg max-w-2xl mx-auto">テキストを貼り付けるだけ。文字数・読了時間・文章構成比を瞬時に解析します。</p>
-        </div>
-
-        <div class="mb-10 text-center flex justify-center w-full min-h-[90px]">
-            <!-- ■■■ 広告タグ貼り付け位置（トップ） ■■■ -->
-        </div>
+<body>
+    <div class="container">
+        <h1>文字数カウント君 (Text Analyzer)</h1>
 
         <div id="root"></div>
 
-        <!-- --- ここからSEO対策用の解説テキストエリア --- -->
-        <div class="mt-16 pt-12 border-t border-slate-800/80">
-            <section class="mb-12">
-                <h2 class="text-2xl md:text-3xl font-bold mb-6 text-white flex items-center">
-                    <span class="w-1.5 h-8 bg-emerald-500 rounded-full mr-4 inline-block"></span>
-                    Text Analyzer PRO とは？
-                </h2>
-                <div class="space-y-4 text-slate-300 leading-relaxed text-base">
-                    <p>
-                        「Text Analyzer
-                        PRO」は、<strong>テキストを貼り付けるだけで、文字数・単語数・段落数・読了時間・漢字率・ひらがな率・カタカナ率などを瞬時に解析する完全無料のWebツール</strong>です。
-                    </p>
-                    <p>
-                        ブログ記事やnote記事を執筆する際、「この記事は何文字だろう？」「読了時間はどれくらい？」「漢字が多すぎて読みにくくないか？」といった疑問を一瞬で解決します。Twitterの140文字制限やnoteの文字数確認、SEO記事の文字数チェックなど、<strong>ライティングに関わるすべての人にとっての必須ツール</strong>です。
-                    </p>
-                    <p>
-                        文章の読みやすさの目安として、一般的に「漢字率20〜30%」が推奨されています。当ツールではリアルタイムで構成比を可視化するため、バランスの良い文章を書くための指標として活用できます。
-                    </p>
-                </div>
-            </section>
-
-            <section class="mb-12">
-                <h2 class="text-2xl md:text-3xl font-bold mb-6 text-white flex items-center">
-                    <span class="w-1.5 h-8 bg-cyan-500 rounded-full mr-4 inline-block"></span>
-                    主な機能と活用シーン
-                </h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div
-                        class="bg-slate-800/40 rounded-xl p-6 border border-slate-700/50 hover:bg-slate-800/60 transition-colors">
-                        <div
-                            class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center mb-4">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                </path>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-white mb-2">リアルタイム文字数カウント</h3>
-                        <p class="text-sm text-slate-400 leading-relaxed">
-                            入力と同時に文字数・単語数・行数・段落数を計測。TwitterやInstagramの文字数制限チェックにも最適です。</p>
-                    </div>
-                    <div
-                        class="bg-slate-800/40 rounded-xl p-6 border border-slate-700/50 hover:bg-slate-800/60 transition-colors">
-                        <div
-                            class="w-12 h-12 bg-cyan-500/20 text-cyan-400 rounded-xl flex items-center justify-center mb-4">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-white mb-2">読了時間の自動算出</h3>
-                        <p class="text-sm text-slate-400 leading-relaxed">
-                            日本語の平均読速（約500〜600文字/分）を基に、読者が読み終えるまでの所要時間を自動で算出します。</p>
-                    </div>
-                    <div
-                        class="bg-slate-800/40 rounded-xl p-6 border border-slate-700/50 hover:bg-slate-800/60 transition-colors">
-                        <div
-                            class="w-12 h-12 bg-teal-500/20 text-teal-400 rounded-xl flex items-center justify-center mb-4">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-bold text-white mb-2">文章構成比の可視化</h3>
-                        <p class="text-sm text-slate-400 leading-relaxed">
-                            漢字・ひらがな・カタカナ・英数字・記号の割合をグラフで表示。読みやすい文章のバランスを直感的に確認できます。</p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="mb-4">
-                <h2 class="text-2xl md:text-3xl font-bold mb-6 text-white flex items-center">
-                    <span class="w-1.5 h-8 bg-indigo-500 rounded-full mr-4 inline-block"></span>
-                    よくある質問（FAQ）
-                </h2>
-                <div class="bg-slate-800/30 rounded-xl border border-slate-700/50 p-6 md:p-8 space-y-6">
-                    <div>
-                        <h3 class="text-white font-semibold mb-2">Q. スマートフォンでも使えますか？</h3>
-                        <p class="text-slate-400 text-sm">はい。PC・スマホ・タブレットすべてのブラウザで利用可能です。アプリのインストールは不要です。</p>
-                    </div>
-                    <div>
-                        <h3 class="text-white font-semibold mb-2">Q. 入力したテキストは保存されますか？</h3>
-                        <p class="text-slate-400 text-sm">
-                            いいえ。すべての処理はお使いのブラウザ内（ローカル）で完結しており、入力された文章がサーバーに送信されることは一切ありません。</p>
-                    </div>
-                    <div>
-                        <h3 class="text-white font-semibold mb-2">Q. 利用回数に制限はありますか？</h3>
-                        <p class="text-slate-400 text-sm">ありません。会員登録不要、完全無料で何度でもご利用いただけます。</p>
-                    </div>
-                </div>
-            </section>
-        </div>
-        <!-- --- 解説テキストエリア ここまで --- -->
-
-        <div class="mt-12 text-center flex justify-center w-full min-h-[250px]">
-            <!-- ■■■ 広告タグ貼り付け位置（ボトム） ■■■ -->
+        <div class="footer">
+            [ <a href="../00_Portal/index.html">便利ツール集ポータルへ戻る</a> ]
         </div>
     </div>
 
@@ -203,153 +131,82 @@
             const [text, setText] = React.useState('');
 
             const analyze = (input) => {
-                if (!input) return { chars: 0, charsNoSpace: 0, words: 0, lines: 0, paragraphs: 0, readTime: '0分0秒', kanji: 0, hiragana: 0, katakana: 0, alphaNum: 0, symbols: 0, kanjiPct: 0, hiraganaPct: 0, katakanaPct: 0, alphaNumPct: 0, symbolsPct: 0 };
+                if (!input) return { chars: 0, charsNoSpace: 0, readTime: '0分0秒', kanjiPct: 0, hiraganaPct: 0, katakanaPct: 0 };
 
                 const chars = input.length;
                 const charsNoSpace = input.replace(/\s/g, '').length;
-                const words = input.trim() ? input.trim().split(/\s+/).length : 0;
-                const lines = input.split('\n').length;
-                const paragraphs = input.split(/\n\s*\n/).filter(p => p.trim()).length || (input.trim() ? 1 : 0);
 
                 const readMinutes = Math.floor(charsNoSpace / 500);
                 const readSeconds = Math.round((charsNoSpace % 500) / 500 * 60);
                 const readTime = `${readMinutes}分${readSeconds}秒`;
 
-                let kanji = 0, hiragana = 0, katakana = 0, alphaNum = 0, symbols = 0;
+                let kanji = 0, hiragana = 0, katakana = 0, total = 0;
                 for (const ch of input.replace(/\s/g, '')) {
-                    const code = ch.charCodeAt(0);
                     if (/[\u4e00-\u9faf\u3400-\u4dbf]/.test(ch)) kanji++;
                     else if (/[\u3040-\u309f]/.test(ch)) hiragana++;
                     else if (/[\u30a0-\u30ff]/.test(ch)) katakana++;
-                    else if (/[a-zA-Z0-9０-９ａ-ｚＡ-Ｚ]/.test(ch)) alphaNum++;
-                    else symbols++;
+                    total++;
                 }
 
-                const total = kanji + hiragana + katakana + alphaNum + symbols || 1;
                 return {
-                    chars, charsNoSpace, words, lines, paragraphs, readTime,
-                    kanji, hiragana, katakana, alphaNum, symbols,
-                    kanjiPct: Math.round(kanji / total * 100),
-                    hiraganaPct: Math.round(hiragana / total * 100),
-                    katakanaPct: Math.round(katakana / total * 100),
-                    alphaNumPct: Math.round(alphaNum / total * 100),
-                    symbolsPct: Math.round(symbols / total * 100),
+                    chars, charsNoSpace, readTime,
+                    kanjiPct: total ? Math.round(kanji / total * 100) : 0,
+                    hiraganaPct: total ? Math.round(hiragana / total * 100) : 0,
+                    katakanaPct: total ? Math.round(katakana / total * 100) : 0,
                 };
             };
 
             const stats = analyze(text);
 
-            const StatCard = ({ label, value, icon, color }) => (
-                <div className={`stat-card glass rounded-xl p-4 text-center`}>
-                    <div className={`text-3xl mb-1 ${color}`}>{icon}</div>
-                    <div className={`text-2xl md:text-3xl font-bold ${color}`}>{value}</div>
-                    <div className="text-xs text-slate-400 mt-1">{label}</div>
-                </div>
-            );
-
-            const Bar = ({ label, pct, color }) => (
-                <div className="mb-3">
-                    <div className="flex justify-between text-sm mb-1">
-                        <span className="text-slate-300">{label}</span>
-                        <span className="text-slate-400">{pct}%</span>
-                    </div>
-                    <div className="w-full bg-slate-800 rounded-full h-3">
-                        <div className={`bar-fill h-3 rounded-full ${color}`} style={{ width: `${pct}%` }}></div>
-                    </div>
-                </div>
-            );
-
             return (
-                <div className="space-y-8">
-                    {/* テキスト入力エリア */}
-                    <div className="glass rounded-2xl p-6 shadow-xl">
-                        <h2 className="text-xl font-semibold mb-4 flex items-center">
-                            <svg className="w-5 h-5 mr-2 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                            テキストを入力 or 貼り付け
-                        </h2>
-                        <textarea
-                            value={text}
-                            onChange={(e) => setText(e.target.value)}
-                            placeholder="ここに分析したいテキストを入力してください..."
-                            className="w-full h-48 bg-slate-900/80 border border-slate-700/50 rounded-xl p-4 text-slate-200 placeholder-slate-500 resize-y font-sans text-sm leading-relaxed"
-                        ></textarea>
-                        <div className="flex justify-end mt-3">
-                            <button onClick={() => setText('')} className="text-sm bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-slate-300 transition-colors">
-                                クリア
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* 基本統計カード */}
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                        <StatCard label="文字数（空白込み）" value={stats.chars.toLocaleString()} icon="📝" color="text-emerald-400" />
-                        <StatCard label="文字数（空白なし）" value={stats.charsNoSpace.toLocaleString()} icon="✏️" color="text-cyan-400" />
-                        <StatCard label="単語数" value={stats.words.toLocaleString()} icon="📖" color="text-blue-400" />
-                        <StatCard label="行数" value={stats.lines.toLocaleString()} icon="📄" color="text-purple-400" />
-                        <StatCard label="読了時間" value={stats.readTime} icon="⏱️" color="text-amber-400" />
-                    </div>
-
-                    {/* 文章構成比 */}
-                    <div className="glass rounded-2xl p-6 shadow-xl">
-                        <h2 className="text-xl font-semibold mb-6 flex items-center">
-                            <svg className="w-5 h-5 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path></svg>
-                            文章構成比
-                        </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div>
-                                <Bar label="漢字" pct={stats.kanjiPct} color="bg-emerald-500" />
-                                <Bar label="ひらがな" pct={stats.hiraganaPct} color="bg-cyan-500" />
-                                <Bar label="カタカナ" pct={stats.katakanaPct} color="bg-blue-500" />
-                                <Bar label="英数字" pct={stats.alphaNumPct} color="bg-purple-500" />
-                                <Bar label="記号・その他" pct={stats.symbolsPct} color="bg-amber-500" />
-                            </div>
-                            <div className="flex items-center justify-center">
-                                <div className="glass rounded-xl p-5 text-center w-full">
-                                    <div className="text-sm text-slate-400 mb-2">漢字率の目安</div>
-                                    <div className={`text-4xl font-bold mb-2 ${stats.kanjiPct >= 20 && stats.kanjiPct <= 30 ? 'text-emerald-400' : stats.kanjiPct > 40 ? 'text-red-400' : 'text-amber-400'}`}>
-                                        {stats.kanjiPct}%
+                <div>
+                    <table class="main">
+                        <tr>
+                            <td class="label">本文入力</td>
+                            <td>
+                                <textarea
+                                    value={text}
+                                    onChange={(e) => setText(e.target.value)}
+                                    placeholder="ここに文章を貼り付けてください..."
+                                ></textarea>
+                                <div style={{ textAlign: 'right', marginTop: '5px' }}>
+                                    <button onClick={() => setText('')} style={{ fontSize: '11px', cursor: 'pointer' }}>クリア</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label">分析結果</td>
+                            <td>
+                                <div class="stat-grid">
+                                    <div class="stat-box">
+                                        <div class="stat-label">文字数(全角)</div>
+                                        <div class="stat-val">{stats.chars}</div>
                                     </div>
-                                    <div className="text-xs text-slate-500">
-                                        {stats.kanjiPct === 0 ? 'テキストを入力してください' :
-                                            stats.kanjiPct >= 20 && stats.kanjiPct <= 30 ? '✅ 読みやすいバランスです' :
-                                                stats.kanjiPct > 40 ? '⚠️ 漢字が多め。ひらがなに開くと読みやすくなります' :
-                                                    stats.kanjiPct < 20 ? '💡 漢字が少なめ。やや幼い印象になるかもしれません' :
-                                                        '📝 やや漢字多め。もう少しひらがなを増やすと◎'}
+                                    <div class="stat-box">
+                                        <div class="stat-label">文字数(空白除)</div>
+                                        <div class="stat-val">{stats.charsNoSpace}</div>
+                                    </div>
+                                    <div class="stat-box">
+                                        <div class="stat-label">読了目安</div>
+                                        <div class="stat-val">{stats.readTime}</div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* SNS文字数チェッカー */}
-                    <div className="glass rounded-2xl p-6 shadow-xl">
-                        <h2 className="text-xl font-semibold mb-4 flex items-center">
-                            <svg className="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
-                            SNS文字数チェック
-                        </h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            {[
-                                { name: 'X (Twitter)', limit: 140, color: 'emerald' },
-                                { name: 'Instagram', limit: 2200, color: 'cyan' },
-                                { name: 'note見出し', limit: 60, color: 'blue' },
-                            ].map(sns => {
-                                const pct = Math.min(100, Math.round(stats.charsNoSpace / sns.limit * 100));
-                                const over = stats.charsNoSpace > sns.limit;
-                                return (
-                                    <div key={sns.name} className="bg-slate-800/40 rounded-xl p-4 border border-slate-700/50">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <span className="text-sm font-medium text-slate-300">{sns.name}</span>
-                                            <span className={`text-xs font-bold ${over ? 'text-red-400' : `text-${sns.color}-400`}`}>{stats.charsNoSpace}/{sns.limit}</span>
-                                        </div>
-                                        <div className="w-full bg-slate-700 rounded-full h-2">
-                                            <div className={`h-2 rounded-full bar-fill ${over ? 'bg-red-500' : `bg-${sns.color}-500`}`} style={{ width: `${pct}%` }}></div>
-                                        </div>
-                                        {over && <p className="text-xs text-red-400 mt-1">⚠ {stats.charsNoSpace - sns.limit}文字オーバー</p>}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="label">文章構成</td>
+                            <td>
+                                <div style={{ fontSize: '12px' }}>
+                                    漢字: {stats.kanjiPct}%
+                                    <div class="bar-container"><div class="bar-fill" style={{ width: `${stats.kanjiPct}%` }}></div></div>
+                                    ひらがな: {stats.hiraganaPct}%
+                                    <div class="bar-container"><div class="bar-fill" style={{ width: `${stats.hiraganaPct}%`, backgroundColor: '#008000' }}></div></div>
+                                    カタカナ: {stats.katakanaPct}%
+                                    <div class="bar-container"><div class="bar-fill" style={{ width: `${stats.katakanaPct}%`, backgroundColor: '#808000' }}></div></div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             );
         };
@@ -357,10 +214,6 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
-
-<!-- admax -->
-<script src="https://adm.shinobi.jp/s/5dfe8bfce49a43ffe78096b109972b5b"></script>
-<!-- admax -->
 </body>
 
 </html>
